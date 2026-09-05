@@ -1,0 +1,27 @@
+# macOS and IDE state
+.DS_Store
+.idea/
+*.iml
+
+# Gradle and Android build output
+.gradle/
+build/
+**/build/
+local.properties
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Signing material and generated packages
+*.jks
+*.keystore
+key.properties
+*.apk
+*.aab
+
+# Private drive data and diagnostics
+telemetry/
+logs/
+sessions/
+*.gnsslog
+*.csv

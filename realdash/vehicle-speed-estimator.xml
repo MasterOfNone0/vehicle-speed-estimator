@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RealDashCAN version="2">
+  <frames>
+    <frame id="0x700" endianness="little">
+      <value name="Vehicle Speed Estimator: Estimated Speed"
+             units="km/h" offset="0" length="2" conversion="V/100"
+             rangeMin="0" rangeMax="260" />
+      <value name="Vehicle Speed Estimator: Raw GNSS Speed"
+             units="km/h" offset="2" length="2" conversion="V/100"
+             rangeMin="0" rangeMax="260" />
+      <value name="Vehicle Speed Estimator: GNSS Age"
+             offset="4" length="2" />
+      <value name="Vehicle Speed Estimator: Mode"
+             offset="6" length="1" />
+      <value name="Vehicle Speed Estimator: Flags"
+             offset="7" length="1" />
+    </frame>
+  </frames>
+</RealDashCAN>
