@@ -1,5 +1,11 @@
 # Velocity estimator V1
 
+> Retrospective audit, 2026-09-22: numerical drive results below are historical
+> reports; their raw captures were not recovered. The seat-start/remount drive
+> described below was operationally discovered, not a deliberate controlled
+> experiment. GPS residuals/replay success establish consistency, not independent
+> accuracy. See the [evidence and limitations](evidence/README.md).
+
 For the current supervisor and fallback behavior, see [v0.9 recovery](recovery-v09.md).
 The historical one-second receiver delay below is not the default for the new
 tablet. It requires device-specific measurement before being enabled.
@@ -111,7 +117,7 @@ holds occurred only during actual stopped tablet handling. The older capture
 also passed without regression. Private telemetry remains outside the
 repository.
 
-A later startup test deliberately began with the tablet loose on a seat and
+A later drive began with the tablet loose on a seat and
 moved it into the mount after GNSS initialized while the vehicle was already
 moving. That sequence exposed a critical fail-safe defect: the filter learned
 gravity leakage as approximately `-8.2 m/s²` of bias, rejected 367 consecutive

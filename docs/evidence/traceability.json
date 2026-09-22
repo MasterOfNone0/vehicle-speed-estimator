@@ -1,0 +1,1487 @@
+{
+  "schema_version": 1,
+  "created_on": "2026-09-22",
+  "source_baseline": "0c347d8918006ac4b0babe98ebe298beebd7ed8c",
+  "note": "Retrospective derived requirements; no DO-178C compliance or historical approval implied. unit-covered is limited fixture coverage, not closed verification.",
+  "evidence_ids": [
+    "E-001",
+    "E-002",
+    "E-003",
+    "E-004",
+    "E-005",
+    "E-006",
+    "E-007",
+    "E-008",
+    "E-009",
+    "E-010",
+    "E-011",
+    "E-012",
+    "E-013",
+    "E-014",
+    "E-015",
+    "E-016",
+    "E-017",
+    "E-018",
+    "E-019",
+    "E-020"
+  ],
+  "requirements": [
+    {
+      "id": "R-001",
+      "statement": "Measure device capabilities and actual callback rates before interpreting update rate.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [],
+      "manual_ids": [
+        "M-001",
+        "M-002",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/MainActivity.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/AccelerometerProbeActivity.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt"
+      ],
+      "evidence_ids": [
+        "E-004",
+        "E-005",
+        "E-013"
+      ],
+      "gap": "Measurements are historical and device/conditions specific; new-tablet sensor scale/latency remain open."
+    },
+    {
+      "id": "R-002",
+      "statement": "Keep raw GNSS, estimated state, selected output source and validity distinguishable.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-030",
+        "T-032",
+        "T-034",
+        "T-037"
+      ],
+      "manual_ids": [
+        "M-003",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-016"
+      ],
+      "gap": "Field names/acceptance semantics vary across versions; dashboard must expose fallback."
+    },
+    {
+      "id": "R-003",
+      "statement": "Use monotonic event times and actual delta-t; reject stale/nonincreasing samples and do not integrate long gaps.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-025"
+      ],
+      "manual_ids": [
+        "M-004",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-007",
+        "E-013"
+      ],
+      "gap": "Selected gap/order cases tested, not all delayed interleavings or shared-thread I/O jitter."
+    },
+    {
+      "id": "R-004",
+      "statement": "Do not initialize velocity by integrating acceleration without a credible speed reference.",
+      "origin": "original-proposal",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-004",
+        "T-021",
+        "T-029"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-015"
+      ],
+      "gap": "Unit fixture coverage, no exhaustive startup environment qualification."
+    },
+    {
+      "id": "R-005",
+      "statement": "When fusion is eligible, predict velocity changes before the next GNSS observation.",
+      "origin": "original-proposal",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-005",
+        "T-022"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-015"
+      ],
+      "gap": "Not a guarantee of high-rate accurate output or fusion availability in the new tablet."
+    },
+    {
+      "id": "R-006",
+      "statement": "Correct velocity and effective bias with GNSS while preserving uncertainty and innovation metadata.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-006",
+        "T-007"
+      ],
+      "manual_ids": [
+        "M-004",
+        "M-005",
+        "M-007"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt"
+      ],
+      "evidence_ids": [
+        "E-008",
+        "E-009",
+        "E-010"
+      ],
+      "gap": "Residuals after corrections are not independent accuracy evidence; model errors remain."
+    },
+    {
+      "id": "R-007",
+      "statement": "Derive an explicit normalized forward projection and document mounting assumptions.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-001",
+        "T-002",
+        "T-003"
+      ],
+      "manual_ids": [
+        "M-004"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransform.kt"
+      ],
+      "evidence_ids": [
+        "E-007",
+        "E-016"
+      ],
+      "gap": "One old-mount fitted axis; no arbitrary yaw or new-mount calibration proof."
+    },
+    {
+      "id": "R-008",
+      "statement": "Converge to zero when credibly stopped without suppressing genuine launch.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-008",
+        "T-010",
+        "T-017",
+        "T-018",
+        "T-027",
+        "T-028"
+      ],
+      "manual_ids": [
+        "M-005",
+        "M-006",
+        "M-007"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManager.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-009",
+        "E-010",
+        "E-015"
+      ],
+      "gap": "Forced-hold component path differs from wrapper; unreliable near-zero GNSS remains a limitation."
+    },
+    {
+      "id": "R-009",
+      "statement": "Treat extra observation lag as device-specific; correct past state and replay if enabled.",
+      "origin": "derived-from-failure",
+      "status": "partial",
+      "test_ids": [
+        "T-011",
+        "T-012"
+      ],
+      "manual_ids": [
+        "M-006",
+        "M-007"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-010",
+        "E-016"
+      ],
+      "gap": "Old-tablet lag inferred; new-tablet default zero is uncharacterized, not proven exact."
+    },
+    {
+      "id": "R-010",
+      "statement": "Keep transport/UI independent of the estimator; support same-device local TCP.",
+      "origin": "subsequent-user-request",
+      "status": "partial",
+      "test_ids": [
+        "T-039",
+        "T-040"
+      ],
+      "manual_ids": [
+        "M-003",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveService.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashCanEncoder.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-006",
+        "E-013",
+        "E-016"
+      ],
+      "gap": "Packet encoder tests do not exercise sockets, lifecycle or live RealDash on every tablet."
+    },
+    {
+      "id": "R-011",
+      "statement": "Preserve explicit units, byte layout, modes and XML input mapping.",
+      "origin": "subsequent-user-request",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-030",
+        "T-034",
+        "T-039",
+        "T-040"
+      ],
+      "manual_ids": [
+        "M-003",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashCanEncoder.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt",
+        "realdash/vehicle-speed-estimator.xml"
+      ],
+      "evidence_ids": [
+        "E-006",
+        "E-012",
+        "E-015"
+      ],
+      "gap": "Byte fixture and observed packet checks; no complete consumer semantics proof."
+    },
+    {
+      "id": "R-012",
+      "statement": "Make selected output available at >=10 Hz; 60 Hz is the current publisher target.",
+      "origin": "subsequent-user-request",
+      "status": "partial",
+      "test_ids": [],
+      "manual_ids": [
+        "M-003",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveService.kt"
+      ],
+      "evidence_ids": [
+        "E-006",
+        "E-012"
+      ],
+      "gap": "20-second 60 Hz observation is not long-run timing nor 60 Hz independent measurements."
+    },
+    {
+      "id": "R-013",
+      "statement": "Serialize estimator mutations and separate snapshot consumption from acquisition.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveService.kt"
+      ],
+      "evidence_ids": [
+        "E-016"
+      ],
+      "gap": "Source inspection only; disk writes share capture path and concurrency stress is absent."
+    },
+    {
+      "id": "R-014",
+      "statement": "Keep the public repository free of private raw telemetry, device identifiers and signing material.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [],
+      "manual_ids": [],
+      "source_paths": [
+        ".gitignore",
+        "docs/evidence/README.md"
+      ],
+      "evidence_ids": [
+        "E-017",
+        "E-019"
+      ],
+      "gap": "Ignored files and review are controls, not a guarantee future commits cannot leak data."
+    },
+    {
+      "id": "R-015",
+      "statement": "Retain sufficient versioned event/configuration metadata for reproducible offline analysis.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-041"
+      ],
+      "manual_ids": [
+        "M-004",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt",
+        "docs/combined-sensor-capture.md"
+      ],
+      "evidence_ids": [
+        "E-007",
+        "E-014",
+        "E-016"
+      ],
+      "gap": "No versioned session manifest; missing old raw data; replay skipped in fresh run."
+    },
+    {
+      "id": "R-016",
+      "statement": "Handle confirmed stationary mount changes without accepting unstable or moving apparent tilt as calibration.",
+      "origin": "subsequent-user-request",
+      "status": "partial",
+      "test_ids": [
+        "T-003",
+        "T-014",
+        "T-015",
+        "T-016",
+        "T-018",
+        "T-019",
+        "T-020",
+        "T-023"
+      ],
+      "manual_ids": [
+        "M-005",
+        "M-006",
+        "M-007"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManager.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-009",
+        "E-010",
+        "E-015"
+      ],
+      "gap": "Selected pitch fixtures; arbitrary yaw/flexible mounts not observable or validated."
+    },
+    {
+      "id": "R-017",
+      "statement": "Do not classify the defined launch regression scenarios as stopped handling.",
+      "origin": "derived-from-failure",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-017",
+        "T-018",
+        "T-027"
+      ],
+      "manual_ids": [
+        "M-006",
+        "M-007"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManager.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-010",
+        "E-012",
+        "E-015"
+      ],
+      "gap": "Covers fixtures/reported cases, not every sustained acceleration or grade combination."
+    },
+    {
+      "id": "R-018",
+      "statement": "Enable or re-enable fusion only after a fresh, later-confirmed eligible quiet stop.",
+      "origin": "derived-from-failure",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-021",
+        "T-022",
+        "T-023",
+        "T-025",
+        "T-026",
+        "T-028",
+        "T-038"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-015"
+      ],
+      "gap": "Rejecting one seat pose does not identify a truly correct forward axis."
+    },
+    {
+      "id": "R-019",
+      "statement": "Independently select fresh raw GPS when fused output is ineligible; otherwise mark unavailable.",
+      "origin": "derived-from-failure",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-029",
+        "T-031",
+        "T-032",
+        "T-033",
+        "T-035",
+        "T-036",
+        "T-037",
+        "T-038"
+      ],
+      "manual_ids": [
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-012",
+        "E-015"
+      ],
+      "gap": "Fallback may inherit plausible GNSS error; consumer invalid behavior not covered."
+    },
+    {
+      "id": "R-020",
+      "statement": "Discard corrupted bias, covariance and replay history on suspension/re-anchor to avoid measurement lockout.",
+      "origin": "derived-from-failure",
+      "status": "unit-covered",
+      "test_ids": [
+        "T-013",
+        "T-021",
+        "T-023",
+        "T-024"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt"
+      ],
+      "evidence_ids": [
+        "E-011",
+        "E-015"
+      ],
+      "gap": "Synthetic regression, original runaway capture unavailable."
+    },
+    {
+      "id": "R-021",
+      "statement": "Prevent stale/unavailable telemetry from appearing as trustworthy live speed through the full consumer path.",
+      "origin": "derived-from-failure",
+      "status": "partial",
+      "test_ids": [
+        "T-025",
+        "T-029",
+        "T-031",
+        "T-036"
+      ],
+      "manual_ids": [
+        "M-012"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt",
+        "realdash/vehicle-speed-estimator.xml"
+      ],
+      "evidence_ids": [
+        "E-011",
+        "E-016"
+      ],
+      "gap": "Producer tested, dashboard timeout/invalid annunciation and dead-service behavior open."
+    },
+    {
+      "id": "R-022",
+      "statement": "Keep state/output finite and within declared fault bounds; never rely only on encoder saturation.",
+      "origin": "derived-from-failure",
+      "status": "partial",
+      "test_ids": [
+        "T-009",
+        "T-013",
+        "T-021",
+        "T-024",
+        "T-035",
+        "T-037",
+        "T-040",
+        "T-041"
+      ],
+      "manual_ids": [
+        "M-008",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashCanEncoder.kt"
+      ],
+      "evidence_ids": [
+        "E-011",
+        "E-014",
+        "E-015"
+      ],
+      "gap": "Plausibility limits are not validated physical/accuracy limits; private replay currently skipped."
+    },
+    {
+      "id": "R-023",
+      "statement": "Persist calibrated mounting and relearn forward alignment from suitable vehicle excitation.",
+      "origin": "subsequent-design-proposal",
+      "status": "proposed-only",
+      "test_ids": [],
+      "manual_ids": [],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransform.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManager.kt"
+      ],
+      "evidence_ids": [
+        "E-009",
+        "E-016"
+      ],
+      "gap": "No implementation of saved profiles or full dynamic forward-axis learning; no acceptance test."
+    },
+    {
+      "id": "R-024",
+      "statement": "Support extended coexistence with RealDash, including service timeout, screen-off, storage and restart behavior.",
+      "origin": "original-proposal",
+      "status": "open",
+      "test_ids": [],
+      "manual_ids": [
+        "M-012"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/CombinedCaptureService.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveService.kt",
+        "app/src/main/AndroidManifest.xml"
+      ],
+      "evidence_ids": [
+        "E-016",
+        "E-018"
+      ],
+      "gap": "No endurance execution; dataSync time budget and shared-thread I/O risks."
+    },
+    {
+      "id": "R-025",
+      "statement": "Characterize limits under hills, sustained acceleration, turns, vibration and GNSS degradation.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-007",
+        "T-015",
+        "T-016",
+        "T-025",
+        "T-027"
+      ],
+      "manual_ids": [
+        "M-004",
+        "M-005",
+        "M-006",
+        "M-010",
+        "M-011"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransform.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt"
+      ],
+      "evidence_ids": [
+        "E-007",
+        "E-010",
+        "E-016"
+      ],
+      "gap": "Limited component fixtures and uncontrolled drive reports, not independent envelope validation."
+    },
+    {
+      "id": "R-026",
+      "statement": "Define and demonstrate useful accuracy/latency against an independent synchronized reference.",
+      "origin": "retrospective-audit",
+      "status": "open",
+      "test_ids": [],
+      "manual_ids": [
+        "M-011"
+      ],
+      "source_paths": [
+        "docs/evidence/evidence-gaps.md"
+      ],
+      "evidence_ids": [
+        "E-001",
+        "E-016"
+      ],
+      "gap": "No numerical acceptance tolerance approved and no independent reference data."
+    },
+    {
+      "id": "R-027",
+      "statement": "Preserve identifiable source baselines and auditable requirement-to-test-to-result links.",
+      "origin": "retrospective-audit",
+      "status": "partial",
+      "test_ids": [],
+      "manual_ids": [],
+      "source_paths": [
+        "docs/evidence/traceability.json",
+        "tools/check_evidence.py"
+      ],
+      "evidence_ids": [
+        "E-002",
+        "E-003",
+        "E-020"
+      ],
+      "gap": "This retrospective matrix does not restore earlier baselines or preapprove requirements."
+    },
+    {
+      "id": "R-028",
+      "statement": "Retain raw evidence privately and durable sanitized result records publicly.",
+      "origin": "retrospective-audit",
+      "status": "partial",
+      "test_ids": [
+        "T-041"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "tools/summarize_verification.py",
+        "docs/evidence/manifest.json"
+      ],
+      "evidence_ids": [
+        "E-014",
+        "E-015",
+        "E-017"
+      ],
+      "gap": "Historical input missing; new retention controls do not recover lost data."
+    },
+    {
+      "id": "R-029",
+      "statement": "Apply GNSS speed/uncertainty plausibility while preserving missing-accuracy semantics.",
+      "origin": "original-proposal",
+      "status": "partial",
+      "test_ids": [
+        "T-009",
+        "T-024",
+        "T-025",
+        "T-031",
+        "T-032",
+        "T-036"
+      ],
+      "manual_ids": [
+        "M-001",
+        "M-009"
+      ],
+      "source_paths": [
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimator.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilter.kt",
+        "app/src/main/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetry.kt"
+      ],
+      "evidence_ids": [
+        "E-003",
+        "E-004",
+        "E-015"
+      ],
+      "gap": "Missing sigma uses assumptions; multipath can remain plausible and pass."
+    },
+    {
+      "id": "R-030",
+      "statement": "State scope honestly: forward terrestrial speed display, not signed navigation, guidance or control.",
+      "origin": "retrospective-audit",
+      "status": "scope-stated",
+      "test_ids": [
+        "T-009"
+      ],
+      "manual_ids": [],
+      "source_paths": [
+        "README.md",
+        "docs/evidence/training/authoring-notes.md"
+      ],
+      "evidence_ids": [
+        "E-001",
+        "E-019"
+      ],
+      "gap": "No reverse velocity, full attitude state, actuator output or aerospace qualification."
+    }
+  ],
+  "tests": [
+    {
+      "id": "T-001",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransformTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VehicleFrameTransformTest",
+      "method": "normalizesForwardAxis",
+      "scope": "Nonunit vector becomes unit length and projects the chosen parallel sample.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-007"
+      ]
+    },
+    {
+      "id": "T-002",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransformTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VehicleFrameTransformTest",
+      "method": "developmentTransformRejectsStationaryGravityReference",
+      "scope": "One historical reference-gravity vector projects near zero; not proof of new-mount alignment.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-007"
+      ]
+    },
+    {
+      "id": "T-003",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VehicleFrameTransformTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VehicleFrameTransformTest",
+      "method": "reorientationPreservesForwardProjectionAcrossGravityChange",
+      "scope": "One specified pitch/gravity change preserves a near-zero gravity projection; yaw untested.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-007",
+        "R-016"
+      ]
+    },
+    {
+      "id": "T-004",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "remainsUninitializedUntilGpsSpeedArrives",
+      "scope": "Acceleration alone does not initialize velocity.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-004"
+      ]
+    },
+    {
+      "id": "T-005",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "accelerationChangesVelocityBeforeNextGpsObservation",
+      "scope": "Specified acceleration predicts increasing velocity between GPS updates.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-005"
+      ]
+    },
+    {
+      "id": "T-006",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "gpsCorrectionPullsPredictionAndLearnsPositiveBias",
+      "scope": "GPS correction moves state toward measurement and updates bias.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-006"
+      ]
+    },
+    {
+      "id": "T-007",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "repeatedGpsCorrectionsLearnSustainedEffectiveBias",
+      "scope": "Repeated prescribed offsets drive effective-bias adaptation, not physical source identification.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-006",
+        "R-025"
+      ]
+    },
+    {
+      "id": "T-008",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "confirmedStopConvergesExactlyToZeroAndLaunchExitsStationaryMode",
+      "scope": "Synthetic stop converges to zero, launch acceleration exits zero hold.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008"
+      ]
+    },
+    {
+      "id": "T-009",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "rejectsVeryUncertainGpsAndNeverCreatesReverseSpeed",
+      "scope": "Excessive uncertainty rejected and forward speed remains nonnegative.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-022",
+        "R-029",
+        "R-030"
+      ]
+    },
+    {
+      "id": "T-010",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "externalStationaryHoldSuppressesMountMovementAndRelearnsBias",
+      "scope": "Standalone filter forced-hold path; not the current v0.9 wrapper integration path.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008"
+      ]
+    },
+    {
+      "id": "T-011",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "delayedGpsCorrectsHistoricalStateThenReplaysAccelerationToNow",
+      "scope": "Configured artificial delay corrects retained historical state and repropagates.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-009"
+      ]
+    },
+    {
+      "id": "T-012",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "zeroDelayRetainsConventionalCurrentStateCorrectionForComparison",
+      "scope": "Zero delay retains conventional correction behavior.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-009"
+      ]
+    },
+    {
+      "id": "T-013",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/VelocityBiasKalmanFilterTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "method": "explicitReanchorDiscardsOldBiasCovarianceAndReplayHistory",
+      "scope": "Re-anchor discards earlier filter memory and allows a fresh starting state.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-020",
+        "R-022"
+      ]
+    },
+    {
+      "id": "T-014",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "stationaryMountChangeIsDetectedHeldAndReorientedAfterItStabilizes",
+      "scope": "Specified 20-degree pitch change at a stop leads to hold then reorientation.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016"
+      ]
+    },
+    {
+      "id": "T-015",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "gravityChangeThatExistsBeforeStoppingIsTreatedAsRoadGrade",
+      "scope": "Preexisting 20-degree grade before a stop does not trigger remount; not changing-hill accuracy.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016",
+        "R-025"
+      ]
+    },
+    {
+      "id": "T-016",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "apparentGravityChangeWhileGpsIsMovingDoesNotRecalibrate",
+      "scope": "Moving GPS prevents the specified apparent-gravity change being treated as stationary recalibration.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016",
+        "R-025"
+      ]
+    },
+    {
+      "id": "T-017",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "movingGpsCancelsAStationaryMountSuspicionAsALaunch",
+      "scope": "Later moving fix cancels unconfirmed stopped-handling suspicion.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008",
+        "R-017"
+      ]
+    },
+    {
+      "id": "T-018",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "mountChangeWaitsForALaterStationaryGpsFixBeforeHoldingZero",
+      "scope": "No zero hold until a later near-zero observation confirms candidate.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008",
+        "R-016",
+        "R-017"
+      ]
+    },
+    {
+      "id": "T-019",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "confirmedMountChangeIsNotCancelledByLaterVehicleMotion",
+      "scope": "Confirmed change remains unresolved after motion but hold-at-zero is released.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016"
+      ]
+    },
+    {
+      "id": "T-020",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/MountCalibrationManagerTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "method": "passingThroughOriginalAngleWhileBeingHandledDoesNotBecomeReady",
+      "scope": "Noisy return through old angle cannot bypass settling checks.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016"
+      ]
+    },
+    {
+      "id": "T-021",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "seatStartupAndRemountWhileDrivingCannotRunAwayOrLockOutGps",
+      "scope": "Synthetic long moving seat-start/remount stays GPS-only, accepts fixes, then qualifies at a stop.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-004",
+        "R-018",
+        "R-020",
+        "R-022"
+      ]
+    },
+    {
+      "id": "T-022",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "quietParkedMountEnablesPredictionBeforeNextGps",
+      "scope": "Specified quiet mounted stop enables fusion and subsequent acceleration changes speed before GPS.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-005",
+        "R-018"
+      ]
+    },
+    {
+      "id": "T-023",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "movingLargeRotationDiscardsBiasAndRemainsGpsOnlyUntilParked",
+      "scope": "Specified gross rotation suspends fusion, clears bias and requires a later stop.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-016",
+        "R-018",
+        "R-020"
+      ]
+    },
+    {
+      "id": "T-024",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "rejectedGpsCannotKeepBadPredictionAliveBetweenCallbacks",
+      "scope": "Large mismatch suspends prediction and exposes raw GPS state rather than gate lockout.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-020",
+        "R-022",
+        "R-029"
+      ]
+    },
+    {
+      "id": "T-025",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "staleFixesAndLongSensorGapCannotEnableFusion",
+      "scope": "Long accelerometer gap, stale and out-of-order GPS do not restore fusion.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-003",
+        "R-018",
+        "R-021",
+        "R-025",
+        "R-029"
+      ]
+    },
+    {
+      "id": "T-026",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "quietSeatPoseDoesNotQualifyAsMounted",
+      "scope": "One chosen seat pose fails quiet-mount eligibility; not all seat poses.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-018"
+      ]
+    },
+    {
+      "id": "T-027",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "sustainedHardLaunchIsNotMistakenForRemounting",
+      "scope": "8 m/s² for five seconds after a stop remains fused and reaches about 40 m/s; synthetic.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008",
+        "R-017",
+        "R-025"
+      ]
+    },
+    {
+      "id": "T-028",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/GuardedSpeedEstimatorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "method": "oneZeroSpeedFixCannotAuthorizeStationaryBiasLearning",
+      "scope": "A single old zero-speed fix cannot qualify a quiet interval for fusion.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-008",
+        "R-018"
+      ]
+    },
+    {
+      "id": "T-029",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "uninitializedCapturePublishesZeroWithInvalidMetadata",
+      "scope": "Uninitialized source yields numeric zero and invalid metadata.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-004",
+        "R-019",
+        "R-021"
+      ]
+    },
+    {
+      "id": "T-030",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "freshPredictingStateIsValidAndConvertedToKph",
+      "scope": "Eligible fused state converts m/s to km/h and marks valid.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-002",
+        "R-011"
+      ]
+    },
+    {
+      "id": "T-031",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "staleAcceptedCorrectionFallsBackToFreshGps",
+      "scope": "Old accepted-correction timestamp disqualifies fusion but allows fresh GPS fallback.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-019",
+        "R-021",
+        "R-029"
+      ]
+    },
+    {
+      "id": "T-032",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "degradedModePublishesFreshGpsInsteadOfTheEstimate",
+      "scope": "Degraded filter uses available fresh raw GPS.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-002",
+        "R-019",
+        "R-029"
+      ]
+    },
+    {
+      "id": "T-033",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "mountMovementSelectsGpsFallback",
+      "scope": "Mount-not-ready state cannot publish fused estimate.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-019"
+      ]
+    },
+    {
+      "id": "T-034",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "modeCodesRemainStableForTheXmlContract",
+      "scope": "Mode code values remain compatible with the explicit mapping.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-002",
+        "R-011"
+      ]
+    },
+    {
+      "id": "T-035",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "runawayEstimateNeverReachesTheWireEvenIfOtherFlagsLookGood",
+      "scope": "Selector rejects implausible estimate despite otherwise permissive flags.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-019",
+        "R-022"
+      ]
+    },
+    {
+      "id": "T-036",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "noFreshCredibleSourcePublishesZeroAndUnavailable",
+      "scope": "Missing credible fresh source yields zero/invalid/UNAVAILABLE, not consumer blanking.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-019",
+        "R-021",
+        "R-029"
+      ]
+    },
+    {
+      "id": "T-037",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "plausibleButDisagreeingEstimateFallsBackAndSourceIsExplicit",
+      "scope": "Finite plausible but inconsistent estimate falls back, explicitly identifying source.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-002",
+        "R-019",
+        "R-022"
+      ]
+    },
+    {
+      "id": "T-038",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashLiveTelemetrySelectorTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "method": "startupMountStateCannotBypassFusionEligibility",
+      "scope": "Mount READY alone cannot bypass fusionReady=false.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-018",
+        "R-019"
+      ]
+    },
+    {
+      "id": "T-039",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashCanEncoderTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashCanEncoderTest",
+      "method": "encodesLiveTelemetryUsingDocumentedLittleEndianLayout",
+      "scope": "Exact fixed-format little-endian bytes and units.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-010",
+        "R-011"
+      ]
+    },
+    {
+      "id": "T-040",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/RealDashCanEncoderTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashCanEncoderTest",
+      "method": "clampsInvalidAndOutOfRangeValues",
+      "scope": "NaN/negative/excessive inputs clamp in encoder; not a substitute for source policy.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "passed",
+      "requirement_ids": [
+        "R-010",
+        "R-011",
+        "R-022"
+      ]
+    },
+    {
+      "id": "T-041",
+      "source": "app/src/test/java/dev/vehiclespeed/gnssprobe/estimator/DriveCaptureReplayTest.kt",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest",
+      "method": "replaysPrivateDriveCaptureWhenProvided",
+      "scope": "Optional private replay checks finite/bounded output, fallback equality and invalid-zero behavior; no minimum fused availability.",
+      "evidence_ids": [
+        "E-015"
+      ],
+      "current_outcome": "skipped",
+      "requirement_ids": [
+        "R-015",
+        "R-022",
+        "R-028"
+      ]
+    }
+  ],
+  "manuals": [
+    {
+      "id": "M-001",
+      "name": "Direct GNSS characterization",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-001",
+        "R-029"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-002",
+      "name": "Stationary accelerometer characterization",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-001"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-003",
+      "name": "Scripted local TCP/RealDash integration",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-002",
+        "R-010",
+        "R-011",
+        "R-012"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-004",
+      "name": "Combined capture and first driving fit D1",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-003",
+        "R-006",
+        "R-007",
+        "R-015",
+        "R-025"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-005",
+      "name": "Live v0.6 drive D2",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-006",
+        "R-008",
+        "R-016",
+        "R-025"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-006",
+      "name": "High-dynamic v0.7 drive D3",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-008",
+        "R-009",
+        "R-016",
+        "R-017",
+        "R-025"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-007",
+      "name": "v0.8 replays D2/D3",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-006",
+        "R-008",
+        "R-009",
+        "R-016",
+        "R-017"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-008",
+      "name": "v0.8 startup/remount runaway D4",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-022"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-009",
+      "name": "New-tablet v0.9 bench and packet check",
+      "status": "historical-reported",
+      "requirement_ids": [
+        "R-001",
+        "R-002",
+        "R-003",
+        "R-010",
+        "R-011",
+        "R-012",
+        "R-015",
+        "R-019",
+        "R-022",
+        "R-029"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-010",
+      "name": "Controlled new-tablet stationary/mount characterization",
+      "status": "planned-not-executed",
+      "requirement_ids": [
+        "R-025"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-011",
+      "name": "Independent accuracy/reference campaign",
+      "status": "planned-not-executed",
+      "requirement_ids": [
+        "R-025",
+        "R-026"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    },
+    {
+      "id": "M-012",
+      "name": "Endurance/lifecycle/consumer failure campaign",
+      "status": "planned-not-executed",
+      "requirement_ids": [
+        "R-021",
+        "R-024"
+      ],
+      "record": "docs/evidence/test-campaigns.md"
+    }
+  ]
+}

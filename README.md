@@ -47,6 +47,21 @@ and suspension after large tablet movement. The output source is visible in the
 live screen and status flags. See the [recovery behavior](docs/recovery-v09.md)
 and [new E8A tablet baseline](docs/tablet-e8a.md).
 
+## Engineering evidence and revision history
+
+The [engineering evidence package](docs/evidence/README.md) reconstructs the
+known revisions, failures, lessons, test campaigns and requirement-to-test links.
+It includes fresh verification results and a separate AI-training adaptation guide.
+Earlier source releases and most private drive recordings were not preserved;
+the package marks historical reports and evidence gaps rather than inventing them.
+Its light assurance-style organization is **not DO-178C compliance**.
+
+Validate the evidence links and artifact hashes with:
+
+```shell
+python3 tools/check_evidence.py
+```
+
 ## Build
 
 ```shell

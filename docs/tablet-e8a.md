@@ -1,5 +1,11 @@
 # E8A tablet baseline
 
+> Audit clarification, 2026-09-22: the operator later confirmed picking up the
+> tablet during the short capture. Treat the measurements below as a handled
+> bench session, not a confirmed stationary calibration. No fused rows occurred.
+> The raw bench CSV was not recovered during the audit; a surviving replay
+> report is retained in the [engineering evidence package](evidence/README.md).
+
 Read-only USB inspection on 2026-09-10. Serial numbers, accounts, and coordinates
 are intentionally omitted.
 

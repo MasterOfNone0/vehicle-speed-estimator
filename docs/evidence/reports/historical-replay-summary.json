@@ -1,0 +1,35 @@
+{
+  "evidence_id": "E-014",
+  "extracted_on": "2026-09-22",
+  "kind": "sanitized historical XML extraction, not a new execution",
+  "limitations": [
+    "Original XML contained local host details, not republished.",
+    "No source commit was embedded in these historical reports.",
+    "The associated raw bench CSV was not found at its recorded temporary path during the audit.",
+    "The successful replay had zero fused rows and does not validate fusion accuracy."
+  ],
+  "reports": [
+    {
+      "original_basename": "TEST-dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest 2.xml",
+      "original_sha256": "49058ef09ffa8650d170da5898c41bc8cf02d02526c61bf01496d426c68e8224",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest",
+      "timestamp_utc": "2026-09-11T03:34:50.287Z",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "system_out": ""
+    },
+    {
+      "original_basename": "TEST-dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest.xml",
+      "original_sha256": "1be859076f12e7c772107e8db50cb2bb61a9d4efbfa750e529954cc191d8e07c",
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest",
+      "timestamp_utc": "2026-09-11T03:45:00.881Z",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "system_out": "Replay: rows=5257 gps=35 fusedRows=0 maxGpsMps=4.13255978 maxPublishedMps=4.13255978 recoveries=0"
+    }
+  ]
+}

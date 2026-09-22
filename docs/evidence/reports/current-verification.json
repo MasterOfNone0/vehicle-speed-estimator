@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "evidence_id": "E-015",
+  "run_date_utc": "2026-09-22",
+  "source_baseline": "0c347d8918006ac4b0babe98ebe298beebd7ed8c",
+  "scope": "Existing debug JVM unit tests, Android lint and debug APK build; no device execution.",
+  "test_totals": {
+    "total": 41,
+    "passed": 40,
+    "skipped": 1
+  },
+  "suites": [
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashCanEncoderTest",
+      "timestamp_utc": "2026-09-22T18:40:40.246Z",
+      "duration_seconds": 0.011,
+      "report_sha256": "fb42b7090b4ed9ce8ac2d81ee1e661af6400a8f62046a3191af64c488c910892",
+      "tests": [
+        {
+          "name": "clampsInvalidAndOutOfRangeValues",
+          "outcome": "passed"
+        },
+        {
+          "name": "encodesLiveTelemetryUsingDocumentedLittleEndianLayout",
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.RealDashLiveTelemetrySelectorTest",
+      "timestamp_utc": "2026-09-22T18:40:40.259Z",
+      "duration_seconds": 0.005,
+      "report_sha256": "64cd83cbb68802e75d0e78007b35bc559f5ff404e6e48a16f6ee6398e7fbf0f1",
+      "tests": [
+        {
+          "name": "staleAcceptedCorrectionFallsBackToFreshGps",
+          "outcome": "passed"
+        },
+        {
+          "name": "freshPredictingStateIsValidAndConvertedToKph",
+          "outcome": "passed"
+        },
+        {
+          "name": "noFreshCredibleSourcePublishesZeroAndUnavailable",
+          "outcome": "passed"
+        },
+        {
+          "name": "mountMovementSelectsGpsFallback",
+          "outcome": "passed"
+        },
+        {
+          "name": "plausibleButDisagreeingEstimateFallsBackAndSourceIsExplicit",
+          "outcome": "passed"
+        },
+        {
+          "name": "uninitializedCapturePublishesZeroWithInvalidMetadata",
+          "outcome": "passed"
+        },
+        {
+          "name": "startupMountStateCannotBypassFusionEligibility",
+          "outcome": "passed"
+        },
+        {
+          "name": "runawayEstimateNeverReachesTheWireEvenIfOtherFlagsLookGood",
+          "outcome": "passed"
+        },
+        {
+          "name": "degradedModePublishesFreshGpsInsteadOfTheEstimate",
+          "outcome": "passed"
+        },
+        {
+          "name": "modeCodesRemainStableForTheXmlContract",
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.DriveCaptureReplayTest",
+      "timestamp_utc": "2026-09-22T18:40:40.266Z",
+      "duration_seconds": 0.003,
+      "report_sha256": "e78045c4c269e5d9262e74929334d3da9e4d8334aef0415ffae6234a11ad573e",
+      "tests": [
+        {
+          "name": "replaysPrivateDriveCaptureWhenProvided",
+          "outcome": "skipped"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimatorTest",
+      "timestamp_utc": "2026-09-22T18:40:40.270Z",
+      "duration_seconds": 0.037,
+      "report_sha256": "9de360d47373573c720fc26b196eec9cb6e6ddc41c1da59d2becb8c4352ccdbe",
+      "tests": [
+        {
+          "name": "movingLargeRotationDiscardsBiasAndRemainsGpsOnlyUntilParked",
+          "outcome": "passed"
+        },
+        {
+          "name": "rejectedGpsCannotKeepBadPredictionAliveBetweenCallbacks",
+          "outcome": "passed"
+        },
+        {
+          "name": "seatStartupAndRemountWhileDrivingCannotRunAwayOrLockOutGps",
+          "outcome": "passed"
+        },
+        {
+          "name": "staleFixesAndLongSensorGapCannotEnableFusion",
+          "outcome": "passed"
+        },
+        {
+          "name": "quietSeatPoseDoesNotQualifyAsMounted",
+          "outcome": "passed"
+        },
+        {
+          "name": "sustainedHardLaunchIsNotMistakenForRemounting",
+          "outcome": "passed"
+        },
+        {
+          "name": "oneZeroSpeedFixCannotAuthorizeStationaryBiasLearning",
+          "outcome": "passed"
+        },
+        {
+          "name": "quietParkedMountEnablesPredictionBeforeNextGps",
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManagerTest",
+      "timestamp_utc": "2026-09-22T18:40:40.308Z",
+      "duration_seconds": 0.004,
+      "report_sha256": "13fc6014c895906b27ba58dc803d05a4a483ee2b1d8eff1aed9d2fb1276ff359",
+      "tests": [
+        {
+          "name": "confirmedMountChangeIsNotCancelledByLaterVehicleMotion",
+          "outcome": "passed"
+        },
+        {
+          "name": "gravityChangeThatExistsBeforeStoppingIsTreatedAsRoadGrade",
+          "outcome": "passed"
+        },
+        {
+          "name": "movingGpsCancelsAStationaryMountSuspicionAsALaunch",
+          "outcome": "passed"
+        },
+        {
+          "name": "apparentGravityChangeWhileGpsIsMovingDoesNotRecalibrate",
+          "outcome": "passed"
+        },
+        {
+          "name": "mountChangeWaitsForALaterStationaryGpsFixBeforeHoldingZero",
+          "outcome": "passed"
+        },
+        {
+          "name": "passingThroughOriginalAngleWhileBeingHandledDoesNotBecomeReady",
+          "outcome": "passed"
+        },
+        {
+          "name": "stationaryMountChangeIsDetectedHeldAndReorientedAfterItStabilizes",
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VehicleFrameTransformTest",
+      "timestamp_utc": "2026-09-22T18:40:40.312Z",
+      "duration_seconds": 0.001,
+      "report_sha256": "ebe2bf3c42a99b501264535abe581dbe8c3170e51458e50ef4e475738361b466",
+      "tests": [
+        {
+          "name": "normalizesForwardAxis",
+          "outcome": "passed"
+        },
+        {
+          "name": "reorientationPreservesForwardProjectionAcrossGravityChange",
+          "outcome": "passed"
+        },
+        {
+          "name": "developmentTransformRejectsStationaryGravityReference",
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "suite": "dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilterTest",
+      "timestamp_utc": "2026-09-22T18:40:40.314Z",
+      "duration_seconds": 0.003,
+      "report_sha256": "5425856a34eb3d57e8fb8b5894a6e200e9c544abb4314a29366a8925d9b6111c",
+      "tests": [
+        {
+          "name": "delayedGpsCorrectsHistoricalStateThenReplaysAccelerationToNow",
+          "outcome": "passed"
+        },
+        {
+          "name": "accelerationChangesVelocityBeforeNextGpsObservation",
+          "outcome": "passed"
+        },
+        {
+          "name": "externalStationaryHoldSuppressesMountMovementAndRelearnsBias",
+          "outcome": "passed"
+        },
+        {
+          "name": "remainsUninitializedUntilGpsSpeedArrives",
+          "outcome": "passed"
+        },
+        {
+          "name": "explicitReanchorDiscardsOldBiasCovarianceAndReplayHistory",
+          "outcome": "passed"
+        },
+        {
+          "name": "rejectsVeryUncertainGpsAndNeverCreatesReverseSpeed",
+          "outcome": "passed"
+        },
+        {
+          "name": "zeroDelayRetainsConventionalCurrentStateCorrectionForComparison",
+          "outcome": "passed"
+        },
+        {
+          "name": "confirmedStopConvergesExactlyToZeroAndLaunchExitsStationaryMode",
+          "outcome": "passed"
+        },
+        {
+          "name": "gpsCorrectionPullsPredictionAndLearnsPositiveBias",
+          "outcome": "passed"
+        },
+        {
+          "name": "repeatedGpsCorrectionsLearnSustainedEffectiveBias",
+          "outcome": "passed"
+        }
+      ]
+    }
+  ],
+  "lint": {
+    "report_sha256": "2781662f0d2e05cf7613f67cf5bafceb0d0e4e71714b9c941a864ca6486371d0",
+    "total_issues": 115,
+    "by_severity": {
+      "Warning": 115
+    },
+    "groups": [
+      {
+        "id": "AndroidGradlePluginVersion",
+        "severity": "Warning",
+        "count": 1
+      },
+      {
+        "id": "DataExtractionRules",
+        "severity": "Warning",
+        "count": 1
+      },
+      {
+        "id": "DiscouragedApi",
+        "severity": "Warning",
+        "count": 5
+      },
+      {
+        "id": "LockedOrientationActivity",
+        "severity": "Warning",
+        "count": 5
+      },
+      {
+        "id": "MissingApplicationIcon",
+        "severity": "Warning",
+        "count": 1
+      },
+      {
+        "id": "ObsoleteSdkInt",
+        "severity": "Warning",
+        "count": 3
+      },
+      {
+        "id": "OldTargetApi",
+        "severity": "Warning",
+        "count": 1
+      },
+      {
+        "id": "SetTextI18n",
+        "severity": "Warning",
+        "count": 97
+      },
+      {
+        "id": "UnnecessaryRequiredFeature",
+        "severity": "Warning",
+        "count": 1
+      }
+    ]
+  },
+  "apk": {
+    "path": "app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "bb17ce2f6434a1eb21adf771ddac695336cd9c49637fae5886a5de5aaf183d4d",
+    "bytes": 966618,
+    "included_in_public_package": false
+  },
+  "limitations": [
+    "Report hashes identify local artifacts, not authenticated or reproducible builds.",
+    "Private drive replay is optional; inspect skipped outcomes.",
+    "Passing assertions are not an independent accuracy reference."
+  ],
+  "execution": {
+    "command": "env -u DRIVE_CAPTURE_CSV ./gradlew testDebugUnitTest lintDebug assembleDebug --rerun-tasks --no-configuration-cache --console=plain",
+    "java": "Android Studio bundled JBR / Java 25 on macOS",
+    "gradle": "9.4.1",
+    "android_gradle_plugin": "9.2.0",
+    "min_sdk": 26,
+    "target_sdk": 35,
+    "compile_sdk": 37,
+    "exit_code": 0,
+    "reported_build_duration_seconds": 31,
+    "actionable_tasks": 49,
+    "all_tasks_executed": true,
+    "private_replay_input_provided": false,
+    "device_test": false
+  }
+}
