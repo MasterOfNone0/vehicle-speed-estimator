@@ -1,5 +1,10 @@
 # Known limitations
 
+Version 0.9.0 addresses the failure mechanism below with a fusion supervisor and
+an independent publisher fallback. See [v0.9 behavior](recovery-v09.md) for the
+conditions, tests, and remaining mounting/accuracy limitations. The account below
+describes the historical v0.8 failure, not a successful validation of v0.9.
+
 ## Version 0.8.0 startup and mount-handling failure
 
 Version 0.8.0 is an engineering prototype and must not be used as a trustworthy
@@ -26,9 +31,9 @@ speed channel do not automatically honor the validity flag. The wire encoding
 clamps speed to 655.35 km/h, so a diverging estimate can appear as a gauge
 pinned near 407 mph.
 
-## Required remediation
+## Remediation implemented in v0.9
 
-Before another driving test, the estimator and publisher need to:
+The supervisor and publisher now:
 
 - fall back to fresh raw GNSS speed, or zero when unavailable, whenever the
   fused estimate is invalid;

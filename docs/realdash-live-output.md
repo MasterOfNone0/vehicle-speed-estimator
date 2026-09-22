@@ -1,9 +1,13 @@
 # Live RealDash output
 
+Version 0.9 changes invalid-estimate handling: the speed channel uses fresh GPS
+fallback or zero/unavailable. The source is explicit on the app's live screen,
+mode code 5, and flag bit 6. Bit 0 now describes the published source's usability.
+Connection and gauge mapping are unchanged. See [v0.9 recovery](recovery-v09.md).
 > [!WARNING]
-> Version 0.8.0 sends the estimated-speed field even when its validity flag is
-> clear. A normal RealDash gauge does not consume that flag, so a degraded
-> estimate can still appear on the gauge. Do not use v0.8.0 for driving; see
+> This is an experimental speed display. A normal RealDash gauge does not
+> interpret the validity flag: zero/unavailable looks like zero speed unless
+> you also display status. Driving accuracy still needs validation; see
 > [`known-limitations.md`](known-limitations.md).
 
 Version 0.6.0 connected the combined GNSS/accelerometer estimator to the
@@ -39,7 +43,8 @@ same time.
 2. Open Vehicle Sensor Probe and select **Open Live RealDash Output**.
 3. Select **Start Live Output**. This starts combined CSV capture and the 60 Hz
    loopback publisher together.
-4. Wait for GPS initialization, then switch to RealDash.
+4. Wait for GPS and a quiet mounted stop to enable fusion, then switch to
+   RealDash. If fusion is not ready, fresh GPS still reaches the speed channel.
 5. Use the existing RealDash-CAN connection at `127.0.0.1:35000`, the existing
    `vehicle-speed-estimator.xml`, and the gauge already bound to
    **Vehicle Speed Estimator: Estimated Speed**.
@@ -58,7 +63,7 @@ CAN ID `0x700` carries eight payload bytes:
 
 | Bytes | Value | Encoding |
 | --- | --- | --- |
-| 0-1 | Estimated speed | unsigned little-endian, km/h x 100 |
+| 0-1 | Published speed (fused or GPS fallback) | unsigned little-endian, km/h x 100 |
 | 2-3 | Raw Android GPS speed | unsigned little-endian, km/h x 100 |
 | 4-5 | Raw GPS age | unsigned little-endian milliseconds |
 | 6 | Estimator mode | mode code below |
@@ -71,25 +76,29 @@ Mode codes are stable parts of the v0.6 XML contract:
 - `2`: predicting
 - `3`: GPS degraded
 - `4`: stationary
+- `5`: GPS-only fallback (added in v0.9)
 
 Status flags are:
 
-- bit 0 (`0x01`): output valid
+- bit 0 (`0x01`): published source usable (fused or GPS fallback)
 - bit 1 (`0x02`): raw GPS is fresh
 - bit 2 (`0x04`): combined capture active
 - bit 3 (`0x08`): mounting calibration is provisional
 - bit 4 (`0x10`): estimator update is fresh
-- bit 5 (`0x20`): mount calibration is ready
+- bit 5 (`0x20`): mount calibration and fusion eligibility are ready
+- bit 6 (`0x40`): GPS fallback
 
-The publisher sends frames even while invalid so the connection remains
-observable. Estimated speed is zero before initialization. Output is valid only
-when capture is active, the estimator is fresh, the mode is usable, an accepted
-GPS correction is no more than three seconds old, and mount calibration is
-ready. RealDash does not
-automatically interpret the validity bit for a normal speed gauge; the app's
-live screen and the separate Flags channel expose it for engineering checks.
+The publisher sends frames even while unavailable so the connection remains
+observable. It uses fused speed only when freshness, eligibility, and the
+independent GPS disagreement checks pass; otherwise it uses fresh credible GPS.
+If neither is available, speed is zero and bit 0 clears. RealDash does not
+automatically interpret that bit for a normal speed gauge; the app's live
+screen and the separate Flags channel expose it for engineering checks.
 
-## Mount handling in v0.8
+## Historical mount handling in v0.8
+
+The following describes v0.8, not v0.9's eligibility or output policy. The
+[v0.9 supervisor](recovery-v09.md) now wraps this calibration manager and filter.
 
 The calibration manager establishes an orientation anchor only after GNSS has
 confirmed that the vehicle is stationary. A change that was already present

@@ -12,6 +12,7 @@ enum class EstimatorMode {
     PREDICTING,
     GPS_DEGRADED,
     STATIONARY,
+    GPS_ONLY,
 }
 
 data class VelocityEstimatorState(
@@ -108,6 +109,15 @@ class VelocityBiasKalmanFilter(
         p10 = 0.0
         p11 = INITIAL_BIAS_VARIANCE_MPS4
         accelerationHistory.clear()
+    }
+
+    /** Explicit recovery discards delayed history and the bias tied to the old mounting pose. */
+    fun reanchor(eventTimestampNs: Long, speedMps: Double, sigmaMps: Double?, biasMps2: Double = 0.0) {
+        require(eventTimestampNs > 0L && SpeedObservation.usable(speedMps, sigmaMps))
+        require(biasMps2.isFinite() && abs(biasMps2) <= 6.0)
+        reset()
+        onGpsSpeed(eventTimestampNs, speedMps, sigmaMps)
+        accelerationBiasMps2 = biasMps2
     }
 
     fun onAcceleration(

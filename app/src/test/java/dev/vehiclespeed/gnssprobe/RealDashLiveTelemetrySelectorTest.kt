@@ -54,36 +54,38 @@ class RealDashLiveTelemetrySelectorTest {
     }
 
     @Test
-    fun staleAcceptedGpsCorrectionMakesOutputInvalid() {
+    fun staleAcceptedCorrectionFallsBackToFreshGps() {
         val telemetry = RealDashLiveTelemetrySelector.select(
             input(lastAcceptedGpsElapsedNs = NOW_NS - 3_001_000_000L),
         )
 
-        assertFalse(telemetry.valid)
-        assertEquals(0, telemetry.flags and RealDashLiveTelemetrySelector.FLAG_VALID)
+        assertTrue(telemetry.valid)
+        assertEquals("GPS_ONLY", telemetry.source)
+        assertEquals(32.4, telemetry.estimatedSpeedKph, 1e-9)
         assertTrue(
             telemetry.flags and RealDashLiveTelemetrySelector.FLAG_ESTIMATOR_FRESH != 0,
         )
     }
 
     @Test
-    fun degradedModeIsInvalidEvenWithFreshData() {
+    fun degradedModePublishesFreshGpsInsteadOfTheEstimate() {
         val telemetry = RealDashLiveTelemetrySelector.select(
             input(estimatorMode = EstimatorMode.GPS_DEGRADED),
         )
 
-        assertFalse(telemetry.valid)
-        assertEquals(3, telemetry.estimatorModeCode)
+        assertTrue(telemetry.valid)
+        assertEquals(5, telemetry.estimatorModeCode)
+        assertEquals(32.4, telemetry.estimatedSpeedKph, 1e-9)
     }
 
     @Test
-    fun mountMovementMakesOtherwiseFreshOutputInvalid() {
+    fun mountMovementSelectsGpsFallback() {
         val telemetry = RealDashLiveTelemetrySelector.select(
             input(mountCalibrationReady = false),
         )
 
-        assertFalse(telemetry.valid)
-        assertEquals(0, telemetry.flags and RealDashLiveTelemetrySelector.FLAG_VALID)
+        assertTrue(telemetry.valid)
+        assertEquals("GPS_ONLY", telemetry.source)
         assertEquals(0, telemetry.flags and RealDashLiveTelemetrySelector.FLAG_MOUNT_READY)
     }
 
@@ -94,6 +96,49 @@ class RealDashLiveTelemetrySelectorTest {
         assertEquals(2, RealDashLiveTelemetrySelector.modeCode(EstimatorMode.PREDICTING))
         assertEquals(3, RealDashLiveTelemetrySelector.modeCode(EstimatorMode.GPS_DEGRADED))
         assertEquals(4, RealDashLiveTelemetrySelector.modeCode(EstimatorMode.STATIONARY))
+        assertEquals(5, RealDashLiveTelemetrySelector.modeCode(EstimatorMode.GPS_ONLY))
+    }
+
+    @Test fun runawayEstimateNeverReachesTheWireEvenIfOtherFlagsLookGood() {
+        val output = RealDashLiveTelemetrySelector.select(input(estimatedSpeedMps = 3557.7))
+        assertEquals("GPS_ONLY", output.source)
+        assertEquals(32.4, output.estimatedSpeedKph, 1e-9)
+        val frame = RealDashCanEncoder.speedFrame(output.estimatedSpeedKph, output.rawGpsSpeedKph,
+            output.gpsAgeMs, output.estimatorModeCode, output.flags)
+        val encoded = (frame[8].toInt() and 255) or ((frame[9].toInt() and 255) shl 8)
+        assertEquals(3240, encoded)
+    }
+
+    @Test fun noFreshCredibleSourcePublishesZeroAndUnavailable() {
+        val cases = listOf(
+            input(lastRawGpsElapsedNs = NOW_NS - 4_000_000_000L),
+            input(lastRawGpsElapsedNs = NOW_NS + 1),
+            input(rawGpsSpeedMps = Double.NaN),
+            input(rawGpsSpeedMps = -1.0),
+            input(rawGpsSpeedMps = 200.0),
+            input().copy(rawGpsSigmaMps = 10.0),
+            input(captureActive = false),
+        )
+        cases.forEach {
+            val output = RealDashLiveTelemetrySelector.select(it)
+            assertFalse(output.valid)
+            assertEquals("UNAVAILABLE", output.source)
+            assertEquals(0.0, output.estimatedSpeedKph, 0.0)
+        }
+    }
+
+    @Test fun plausibleButDisagreeingEstimateFallsBackAndSourceIsExplicit() {
+        val output = RealDashLiveTelemetrySelector.select(input(estimatedSpeedMps = 40.0))
+        assertEquals("GPS_ONLY", output.source)
+        assertTrue(output.flags and RealDashLiveTelemetrySelector.FLAG_GPS_FALLBACK != 0)
+        assertEquals(32.4, output.estimatedSpeedKph, 1e-9)
+    }
+
+    @Test fun startupMountStateCannotBypassFusionEligibility() {
+        val output = RealDashLiveTelemetrySelector.select(input().copy(fusionReady = false))
+        assertEquals("GPS_ONLY", output.source)
+        assertEquals(0, output.flags and RealDashLiveTelemetrySelector.FLAG_MOUNT_READY)
+        assertEquals(32.4, output.estimatedSpeedKph, 1e-9)
     }
 
     private fun input(
@@ -116,6 +161,7 @@ class RealDashLiveTelemetrySelectorTest {
         estimatorTimestampNs = estimatorTimestampNs,
         estimatorMode = estimatorMode,
         mountCalibrationReady = mountCalibrationReady,
+        fusionReady = true,
     )
 
     companion object {

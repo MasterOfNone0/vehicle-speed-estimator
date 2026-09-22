@@ -1,5 +1,9 @@
 # Velocity estimator V1
 
+For the current supervisor and fallback behavior, see [v0.9 recovery](recovery-v09.md).
+The historical one-second receiver delay below is not the default for the new
+tablet. It requires device-specific measurement before being enabled.
+
 Application version 0.5.0 added a provisional Android-only vehicle-speed
 estimator to the combined capture service. Version 0.6.0 can publish that state
 to RealDash without changing the estimator mathematics. Version 0.7.0 added an

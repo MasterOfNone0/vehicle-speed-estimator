@@ -1,6 +1,8 @@
 package dev.vehiclespeed.gnssprobe
 
 import dev.vehiclespeed.gnssprobe.estimator.EstimatorMode
+import dev.vehiclespeed.gnssprobe.estimator.SpeedObservation
+import kotlin.math.abs
 
 data class RealDashLiveInput(
     val captureActive: Boolean,
@@ -12,6 +14,8 @@ data class RealDashLiveInput(
     val estimatorTimestampNs: Long,
     val estimatorMode: EstimatorMode,
     val mountCalibrationReady: Boolean,
+    val fusionReady: Boolean = false,
+    val rawGpsSigmaMps: Double? = null,
 )
 
 data class RealDashLiveTelemetry(
@@ -21,6 +25,7 @@ data class RealDashLiveTelemetry(
     val estimatorModeCode: Int,
     val flags: Int,
     val valid: Boolean,
+    val source: String,
 )
 
 object RealDashLiveTelemetrySelector {
@@ -30,19 +35,31 @@ object RealDashLiveTelemetrySelector {
     const val FLAG_CALIBRATION_PROVISIONAL = 1 shl 3
     const val FLAG_ESTIMATOR_FRESH = 1 shl 4
     const val FLAG_MOUNT_READY = 1 shl 5
+    const val FLAG_GPS_FALLBACK = 1 shl 6
 
     fun select(input: RealDashLiveInput): RealDashLiveTelemetry {
         val rawGpsAgeMs = ageMs(input.nowElapsedNs, input.lastRawGpsElapsedNs)
         val acceptedGpsAgeMs = ageMs(input.nowElapsedNs, input.lastAcceptedGpsElapsedNs)
         val estimatorAgeMs = ageMs(input.nowElapsedNs, input.estimatorTimestampNs)
-        val rawGpsFresh = rawGpsAgeMs <= RAW_GPS_FRESHNESS_MS
+        val rawGpsFresh = rawGpsAgeMs <= RAW_GPS_FRESHNESS_MS &&
+            SpeedObservation.usable(input.rawGpsSpeedMps, input.rawGpsSigmaMps)
         val acceptedGpsFresh = acceptedGpsAgeMs <= ACCEPTED_GPS_FRESHNESS_MS
         val estimatorFresh = estimatorAgeMs <= ESTIMATOR_FRESHNESS_MS
-        val hasEstimate = input.estimatedSpeedMps?.isFinite() == true
+        val hasEstimate = SpeedObservation.usable(input.estimatedSpeedMps, null)
         val usableMode = input.estimatorMode != EstimatorMode.UNINITIALIZED &&
-            input.estimatorMode != EstimatorMode.GPS_DEGRADED
-        val valid = input.captureActive && hasEstimate && estimatorFresh &&
-            acceptedGpsFresh && usableMode && input.mountCalibrationReady
+            input.estimatorMode != EstimatorMode.GPS_DEGRADED &&
+            input.estimatorMode != EstimatorMode.GPS_ONLY
+        val envelope = 6.0 + 12.0 * (rawGpsAgeMs / 1000.0).coerceAtMost(2.0)
+        val fused = input.captureActive && input.fusionReady && hasEstimate && estimatorFresh &&
+            acceptedGpsFresh && usableMode && input.mountCalibrationReady && rawGpsFresh &&
+            abs(input.estimatedSpeedMps!! - input.rawGpsSpeedMps!!) <= envelope
+        val fallback = !fused && input.captureActive && rawGpsFresh
+        val valid = fused || fallback
+        val outputMps = when {
+            fused -> input.estimatedSpeedMps!!
+            fallback -> input.rawGpsSpeedMps!!
+            else -> 0.0
+        }
 
         var flags = FLAG_CALIBRATION_PROVISIONAL
         if (input.captureActive) flags = flags or FLAG_CAPTURE_ACTIVE
@@ -50,24 +67,22 @@ object RealDashLiveTelemetrySelector {
             flags = flags or FLAG_RAW_GPS_FRESH
         }
         if (estimatorFresh && hasEstimate) flags = flags or FLAG_ESTIMATOR_FRESH
-        if (input.mountCalibrationReady) flags = flags or FLAG_MOUNT_READY
+        if (input.mountCalibrationReady && input.fusionReady) flags = flags or FLAG_MOUNT_READY
         if (valid) flags = flags or FLAG_VALID
+        if (fallback) flags = flags or FLAG_GPS_FALLBACK
 
         return RealDashLiveTelemetry(
-            estimatedSpeedKph = input.estimatedSpeedMps
-                ?.takeIf { it.isFinite() }
-                ?.coerceAtLeast(0.0)
-                ?.times(MPS_TO_KPH)
-                ?: 0.0,
+            estimatedSpeedKph = outputMps * MPS_TO_KPH,
             rawGpsSpeedKph = input.rawGpsSpeedMps
                 ?.takeIf { it.isFinite() }
                 ?.coerceAtLeast(0.0)
                 ?.times(MPS_TO_KPH)
                 ?: 0.0,
             gpsAgeMs = rawGpsAgeMs.coerceIn(0, 65_535),
-            estimatorModeCode = modeCode(input.estimatorMode),
+            estimatorModeCode = if (fallback) 5 else modeCode(input.estimatorMode),
             flags = flags,
             valid = valid,
+            source = when { fused -> "FUSED"; fallback -> "GPS_ONLY"; else -> "UNAVAILABLE" },
         )
     }
 
@@ -77,10 +92,11 @@ object RealDashLiveTelemetrySelector {
         EstimatorMode.PREDICTING -> 2
         EstimatorMode.GPS_DEGRADED -> 3
         EstimatorMode.STATIONARY -> 4
+        EstimatorMode.GPS_ONLY -> 5
     }
 
     private fun ageMs(nowElapsedNs: Long, eventElapsedNs: Long): Int {
-        if (eventElapsedNs <= 0L) return 65_535
+        if (eventElapsedNs <= 0L || eventElapsedNs > nowElapsedNs) return 65_535
         return ((nowElapsedNs - eventElapsedNs).coerceAtLeast(0L) / NS_PER_MS)
             .coerceAtMost(65_535L)
             .toInt()

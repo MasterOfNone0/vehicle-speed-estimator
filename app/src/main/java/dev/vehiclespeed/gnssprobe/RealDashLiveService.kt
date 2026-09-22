@@ -32,6 +32,7 @@ data class RealDashLiveSnapshot(
     val flags: Int = RealDashLiveTelemetrySelector.FLAG_CALIBRATION_PROVISIONAL,
     val valid: Boolean = false,
     val packetsSent: Long = 0L,
+    val source: String = "UNAVAILABLE",
 )
 
 object RealDashLiveRuntime {
@@ -145,6 +146,8 @@ class RealDashLiveService : Service() {
                     estimatorMode = capture.estimatorMode,
                     mountCalibrationReady =
                         capture.mountCalibrationMode == MountCalibrationMode.READY,
+                    fusionReady = capture.fusionReady,
+                    rawGpsSigmaMps = capture.gpsSpeedAccuracyMps,
                 ),
             )
 
@@ -173,6 +176,7 @@ class RealDashLiveService : Service() {
                 flags = telemetry.flags,
                 valid = telemetry.valid,
                 packetsSent = packetsSent,
+                source = telemetry.source,
             )
 
             nextSendNs += PUBLISH_INTERVAL_NS
@@ -186,11 +190,9 @@ class RealDashLiveService : Service() {
         telemetry: RealDashLiveTelemetry,
     ): String = when {
         !capture.active -> "RealDash connected; combined capture is stopped"
-        capture.estimatedSpeedMps == null -> "RealDash connected; waiting for GPS initialization"
-        capture.mountCalibrationMode != MountCalibrationMode.READY ->
-            "RealDash connected; mount moved, holding zero while stationary"
-        telemetry.valid -> "RealDash connected; publishing live estimate"
-        else -> "RealDash connected; estimate is stale or degraded"
+        telemetry.source == "UNAVAILABLE" -> "Waiting for fresh GPS; speed unavailable"
+        telemetry.source == "GPS_ONLY" -> capture.fusionReason
+        else -> "RealDash connected; publishing fused speed"
     }
 
     private fun sleepUntil(targetNs: Long) {

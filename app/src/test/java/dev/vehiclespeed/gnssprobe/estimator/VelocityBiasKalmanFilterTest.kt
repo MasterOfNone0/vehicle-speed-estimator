@@ -156,5 +156,19 @@ class VelocityBiasKalmanFilterTest {
         assertTrue(corrected.velocityMps < 12.0)
     }
 
+    @Test fun explicitReanchorDiscardsOldBiasCovarianceAndReplayHistory() {
+        val filter = VelocityBiasKalmanFilter()
+        filter.onGpsSpeed(seconds(1.0), 30.0, 0.3)
+        repeat(400) { filter.onAcceleration(seconds(1.01 + it / 100.0), 9.0) }
+        filter.reanchor(seconds(5.0), 20.0, 0.3, 1.2)
+        val reset = filter.state()
+        assertEquals(20.0, reset.velocityMps, 0.0)
+        assertEquals(1.2, reset.accelerationBiasMps2, 0.0)
+        repeat(100) { filter.onAcceleration(seconds(5.01 + it / 100.0), 1.2) }
+        val corrected = filter.onGpsSpeed(seconds(6.0), 20.0, 0.3)
+        assertEquals(20.0, corrected.velocityMps, 0.01)
+        assertTrue(corrected.gpsMeasurementAccepted)
+    }
+
     private fun seconds(value: Double): Long = (value * 1_000_000_000L).toLong()
 }

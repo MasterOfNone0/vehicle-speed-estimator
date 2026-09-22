@@ -4,10 +4,10 @@ An experimental Android application for characterizing tablet GNSS and motion
 sensors, then producing a higher-rate vehicle-speed estimate.
 
 > [!WARNING]
-> Version 0.8.0 is an engineering prototype and is not suitable for vehicle or
-> safety-critical use. A known startup/mount-handling sequence can make the
-> estimator reject valid GNSS corrections and publish an implausible speed.
-> See [`docs/known-limitations.md`](docs/known-limitations.md).
+> This is an experimental speed display, not a validated vehicle instrument.
+> Version 0.9.0 adds GPS fallback and recovery for the v0.8 startup/mount-handling
+> failure. Mount alignment and driving accuracy still need validation.
+> See [`docs/recovery-v09.md`](docs/recovery-v09.md).
 
 The application now includes sensor characterization, a two-state vehicle-speed
 estimator with delayed-GNSS correction and IMU replay, guarded stationary mount
@@ -42,9 +42,10 @@ publisher. See
 [`docs/realdash-loopback-test.md`](docs/realdash-loopback-test.md) and
 [`docs/realdash-live-output.md`](docs/realdash-live-output.md).
 
-The latest private-drive replay exposed a fail-safe defect in v0.8.0. The next
-milestone is to add GNSS re-anchoring, degraded-output fallback, and moving
-mount-handling invalidation before further road testing.
+Version 0.9.0 adds guarded startup, GPS re-anchoring, degraded-output fallback,
+and suspension after large tablet movement. The output source is visible in the
+live screen and status flags. See the [recovery behavior](docs/recovery-v09.md)
+and [new E8A tablet baseline](docs/tablet-e8a.md).
 
 ## Build
 

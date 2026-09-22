@@ -93,11 +93,11 @@ class RealDashLiveActivity : Activity() {
             "${RealDashLiveService.LOOPBACK_ADDRESS}:${RealDashLiveService.PORT}",
         )
         addMetric(content, "REALDASH-CAN FRAME", "0x700 at 60 Hz")
-        estimatedSpeedText = addMetric(content, "LIVE ESTIMATED SPEED", "—")
+        estimatedSpeedText = addMetric(content, "PUBLISHED SPEED", "—")
         rawGpsSpeedText = addMetric(content, "RAW GPS SPEED", "—")
         gpsAgeText = addMetric(content, "RAW GPS AGE", "—")
         modeText = addMetric(content, "ESTIMATOR MODE", "UNINITIALIZED (0)")
-        validityText = addMetric(content, "OUTPUT VALIDITY", "INVALID")
+        validityText = addMetric(content, "OUTPUT SOURCE", "UNAVAILABLE")
         mountStateText = addMetric(content, "MOUNT CALIBRATION", "READY")
         flagsText = addMetric(content, "FRAME FLAGS", "0x08")
         packetCountText = addMetric(content, "PACKETS SENT", "0")
@@ -121,7 +121,7 @@ class RealDashLiveActivity : Activity() {
         content.addView(TextView(this).apply {
             text = "Start while safely parked, then switch to RealDash. Use the existing " +
                 "127.0.0.1:35000 connection, XML, and Estimated Speed gauge binding. " +
-                "The estimate stays invalid until GPS initializes it. Return here to stop " +
+                "Wait for GPS; park with the tablet mounted for fusion. GPS is used during recovery. Return here to stop " +
                 "both publishing and CSV capture."
             textSize = 13f
             setPadding(0, dp(14), 0, dp(8))
@@ -203,10 +203,10 @@ class RealDashLiveActivity : Activity() {
         rawGpsSpeedText.text = formatSpeed(live.rawGpsSpeedKph)
         gpsAgeText.text = if (live.gpsAgeMs < 65_535) "${live.gpsAgeMs} ms" else "Unavailable"
         modeText.text = "${capture.estimatorMode.name} (${live.estimatorModeCode})"
-        validityText.text = if (live.valid) "VALID" else "INVALID"
+        validityText.text = "${live.source} • ${if (live.valid) "VALID" else "UNAVAILABLE"}"
         mountStateText.text = format(
             "%s • %.1f° • %d adjustment%s",
-            capture.mountCalibrationMode.name,
+            if (capture.fusionReady) capture.mountCalibrationMode.name else "WAITING FOR STABLE MOUNT",
             capture.mountOrientationChangeDegrees,
             capture.mountRecalibrationCount,
             if (capture.mountHoldSpeedAtZero) " • HOLDING ZERO" else "",

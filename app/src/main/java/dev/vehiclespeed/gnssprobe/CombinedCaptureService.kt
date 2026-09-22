@@ -26,11 +26,10 @@ import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
 import dev.vehiclespeed.gnssprobe.estimator.EstimatorMode
-import dev.vehiclespeed.gnssprobe.estimator.MountCalibrationManager
+import dev.vehiclespeed.gnssprobe.estimator.GuardedSpeedEstimator
 import dev.vehiclespeed.gnssprobe.estimator.MountCalibrationMode
 import dev.vehiclespeed.gnssprobe.estimator.MountCalibrationState
 import dev.vehiclespeed.gnssprobe.estimator.VehicleFrameTransform
-import dev.vehiclespeed.gnssprobe.estimator.VelocityBiasKalmanFilter
 import dev.vehiclespeed.gnssprobe.estimator.VelocityEstimatorState
 import java.io.BufferedWriter
 import java.io.File
@@ -76,6 +75,9 @@ data class CombinedCaptureSnapshot(
     val gpsCount: Long = 0L,
     val accelCount: Long = 0L,
     val logPath: String = "",
+    val fusionReady: Boolean = false,
+    val fusionReason: String = "Waiting for GPS",
+    val recoveryCount: Int = 0,
 )
 
 object CombinedCaptureRuntime {
@@ -93,8 +95,7 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
     private val accelerometer by lazy {
         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     }
-    private val mountCalibrationManager = MountCalibrationManager()
-    private val estimator = VelocityBiasKalmanFilter()
+    private val estimator = GuardedSpeedEstimator()
 
     private val running = AtomicBoolean(false)
     private lateinit var captureThread: HandlerThread
@@ -232,6 +233,7 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
         if (!running.get()) return
         val arrivalNs = SystemClock.elapsedRealtimeNanos()
         val eventNs = location.elapsedRealtimeNanos
+        if (eventNs <= CombinedCaptureRuntime.snapshot.lastGpsElapsedNs || eventNs > arrivalNs) return
         gpsCount++
         addTimestamp(gpsTimestampsNs, eventNs)
         val gpsSpeedMps = if (location.hasSpeed()) location.speed.toDouble() else null
@@ -240,20 +242,9 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
         } else {
             null
         }
-        val calibrationState = if (gpsSpeedMps != null) {
-            mountCalibrationManager.onGpsSpeed(
-                eventTimestampNs = eventNs,
-                speedMps = gpsSpeedMps,
-                speedAccuracyMps = gpsSpeedAccuracyMps,
-            )
-        } else {
-            mountCalibrationManager.state()
-        }
-        val estimatorState = if (gpsSpeedMps != null) {
-            estimator.onGpsSpeed(eventNs, gpsSpeedMps, gpsSpeedAccuracyMps)
-        } else {
-            estimator.state()
-        }
+        val guarded = estimator.onGpsSpeed(eventNs, gpsSpeedMps ?: Double.NaN, gpsSpeedAccuracyMps, arrivalNs)
+        val calibrationState = guarded.calibration
+        val estimatorState = guarded.estimator
         writeRecord(
             type = "GPS",
             arrivalNs = arrivalNs,
@@ -295,19 +286,9 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
         val y = event.values[1].toDouble()
         val z = event.values[2].toDouble()
         val magnitude = sqrt(x * x + y * y + z * z)
-        val calibrationState = mountCalibrationManager.onAcceleration(
-            eventTimestampNs = event.timestamp,
-            accelX = x,
-            accelY = y,
-            accelZ = z,
-        )
-        val longitudinalAcceleration = calibrationState.activeTransform
-            .longitudinalAccelerationMps2(x, y, z)
-        val estimatorState = estimator.onAcceleration(
-            eventTimestampNs = event.timestamp,
-            longitudinalAccelerationMps2 = longitudinalAcceleration,
-            forceStationaryHold = calibrationState.holdSpeedAtZero,
-        )
+        val guarded = estimator.onAcceleration(event.timestamp, x, y, z)
+        val calibrationState = guarded.calibration
+        val estimatorState = guarded.estimator
         accelCount++
         addTimestamp(accelTimestampsNs, event.timestamp)
         writeRecord(
@@ -382,7 +363,8 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
                     "gps_measurement_accepted,mount_calibration_mode," +
                     "mount_orientation_change_deg,mount_gravity_noise_rms_mps2," +
                     "mount_hold_speed_at_zero,mount_recalibration_count," +
-                    "active_forward_x,active_forward_y,active_forward_z\n",
+                    "active_forward_x,active_forward_y,active_forward_z," +
+                    "fusion_ready,fusion_reason,recovery_count\n",
             )
             flush()
         }
@@ -440,6 +422,9 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
                 calibrationState?.activeTransform?.forwardAxis?.x,
                 calibrationState?.activeTransform?.forwardAxis?.y,
                 calibrationState?.activeTransform?.forwardAxis?.z,
+                estimator.state().fusionReady,
+                estimator.state().reason,
+                estimator.state().recoveryCount,
             )
             activeWriter.write(fields.joinToString(",", transform = ::formatCsvValue))
             activeWriter.newLine()
@@ -485,7 +470,6 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
         loggingError = null
         failureMessage = null
         estimator.reset()
-        mountCalibrationManager.reset()
         CombinedCaptureRuntime.snapshot = CombinedCaptureSnapshot(
             active = true,
             status = "Opening combined session CSV",
@@ -506,6 +490,9 @@ class CombinedCaptureService : Service(), SensorEventListener, LocationListener 
         estimatorState: VelocityEstimatorState,
         calibrationState: MountCalibrationState,
     ): CombinedCaptureSnapshot = copy(
+        fusionReady = estimator.state().fusionReady,
+        fusionReason = estimator.state().reason,
+        recoveryCount = estimator.state().recoveryCount,
         longitudinalAccelerationMps2 = estimatorState.longitudinalAccelerationMps2,
         correctedAccelerationMps2 = estimatorState.correctedAccelerationMps2,
         estimatedSpeedMps = estimatorState.velocityMps.takeIf { estimatorState.initialized },

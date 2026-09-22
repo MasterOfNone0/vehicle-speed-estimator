@@ -1,5 +1,9 @@
 # Combined sensor capture
 
+Version 0.9 adds `fusion_ready`, `fusion_reason`, and `recovery_count` to the
+existing CSV. See [recovery behavior](recovery-v09.md). A `GPS_ONLY` speed state is
+a held raw observation, not an IMU prediction.
+
 The combined capture milestone records direct GPS-provider observations and raw
 accelerometer samples in one event-stream CSV. Both event types use Android's
 elapsed-realtime nanosecond timebase so they can be aligned offline without
